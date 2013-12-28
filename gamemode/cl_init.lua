@@ -15,6 +15,8 @@ include("cl_qmenu.lua")
 include("cl_spectate.lua")
 include("cl_adminpanel.lua")
 
+include("cl_roledialog.lua")
+
 GM.Debug = CreateClientConVar( "mu_debug", 0, true, true )
 GM.HaloRender = CreateClientConVar( "mu_halo_render", 1, true, true ) // should we render halos
 GM.HaloRenderLoot = CreateClientConVar( "mu_halo_loot", 1, true, true ) // shouuld we render loot halos

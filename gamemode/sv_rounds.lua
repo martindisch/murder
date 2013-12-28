@@ -228,7 +228,14 @@ function GM:StartNewRound()
 
 	// pick a random murderer, weighted
 	local rand = WeightedRandom()
-	for k, ply in pairs(players) do
+	
+	-- Set up possible murderers and remove all gunmen (who don't want to be murderer)
+	local possibleMurderers = table.Copy(players)
+	for k, ply in pairs(GunmanPool) do
+		table.RemoveByValue(possibleMurderers, ply)
+	end
+	
+	for k, ply in pairs (possibleMurderers) do
 		rand:Add(ply.MurdererChance ^ weightMul, ply)
 		ply.MurdererChance = ply.MurdererChance + 1
 	end
@@ -259,9 +266,17 @@ function GM:StartNewRound()
 		ply:CalculateSpeed()
 		ply:GenerateBystanderName()
 	end
-	local noobs = table.Copy(players)
-	table.RemoveByValue(noobs, murderer)
-	local magnum = table.Random(noobs)
+	
+	-- Set up possible gunmen and remove all murderers (who don't want to be gunman)
+	local possibleGunmen = table.Copy(players)
+	-- Remove actual murderer first
+	table.RemoveByValue(possibleGunmen, murderer)
+	-- Remove wannabe murderers
+	for k, ply in pairs (MurdererPool) do
+		table.RemoveByValue(possibleGunmen, ply)
+	end
+	
+	local magnum = table.Random(possibleGunmen)
 	if IsValid(magnum) then
 		magnum:Give("weapon_mu_magnum")
 	end
@@ -299,3 +314,46 @@ concommand.Add("mu_forcenextmurderer", function (ply, com, args)
 	ct:Add(" will be Murderer next round")
 	ct:Send(ply)
 end)
+
+local playerChoices = { }
+local MurdererPool = { }
+local GunmanPool = { }
+
+concommand.Add("RoleSelect", function(ply, cmd, args)
+	playerChoices[ply:Name()] = args
+	if (args[1] == "Murderer") then
+		MurdererPool[ply:Name()] = ply
+		GunmanPool[ply:Name()] = nil
+	elseif (args[1] == "Gunman") then
+		GunmanPool[ply:Name()] = ply
+		MurdererPool[ply:Name()] = nil
+	elseif (args[1] == "Both") then
+		GunmanPool[ply:Name()] = nil
+		MurdererPool[ply:Name()] = nil
+	end
+	--ShowChoices()
+	--ShowPools()
+end)
+
+function ShowChoices()
+	local message = ""
+	local players = team.GetPlayers(2)
+	
+	for k, v in pairs (playerChoices) do
+		message = message .. k .. " wants to be " .. v[1] .. "\n"
+	end
+	
+	for k, ply in pairs(players) do
+		ply:PrintMessage(HUD_PRINTCENTER, message)
+	end
+end
+
+function ShowPools()
+	for k, v in pairs (MurdererPool) do
+		Msg(k .. " wants to be a Murderer\n")
+	end
+	
+	for k, v in pairs (GunmanPool) do
+		Msg(k .. " wants to be a Gunman\n")
+	end
+end

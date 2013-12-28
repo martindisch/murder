@@ -16,6 +16,8 @@ AddCSLuaFile("cl_qmenu.lua")
 AddCSLuaFile("cl_spectate.lua")
 AddCSLuaFile("cl_adminpanel.lua")
 
+AddCSLuaFile("cl_roledialog.lua")
+
 include("shared.lua")
 include("weightedrandom.lua")
 include("sv_player.lua")
@@ -138,4 +140,9 @@ function file.ReadDataAndContent(path)
 	if f then return f end
 	f = file.Read(GAMEMODE.Folder .. "/content/data/" .. path, "GAME")
 	return f
+end
+
+function GM:ShowTeam(ply)
+	umsg.Start("RoleDialog", ply)
+	umsg.End()
 end
