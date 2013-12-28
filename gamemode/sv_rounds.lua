@@ -2,6 +2,10 @@
 util.AddNetworkString("SetRound")
 util.AddNetworkString("DeclareWinner")
 
+local playerChoices = { }
+local MurdererPool = { }
+local GunmanPool = { }
+
 GM.RoundStage = 0
 if GAMEMODE then
 	GM.RoundStage = GAMEMODE.RoundStage
@@ -234,6 +238,10 @@ function GM:StartNewRound()
 	for k, ply in pairs(GunmanPool) do
 		table.RemoveByValue(possibleMurderers, ply)
 	end
+	-- If we don't have enough possible murderers (if everybody wants to be a gunman), reverse what we just did
+	if (table.getn(possibleMurderers) < 1) then
+		possibleMurderers = table.Copy(players)
+	end
 	
 	for k, ply in pairs (possibleMurderers) do
 		rand:Add(ply.MurdererChance ^ weightMul, ply)
@@ -267,13 +275,17 @@ function GM:StartNewRound()
 		ply:GenerateBystanderName()
 	end
 	
-	-- Set up possible gunmen and remove all murderers (who don't want to be gunman)
+	-- Set up possible gunmen and remove all murderers (who don't want to be gunmen)
 	local possibleGunmen = table.Copy(players)
 	-- Remove actual murderer first
 	table.RemoveByValue(possibleGunmen, murderer)
 	-- Remove wannabe murderers
 	for k, ply in pairs (MurdererPool) do
 		table.RemoveByValue(possibleGunmen, ply)
+	end
+	-- If we don't have enough possible gunmen (if everybody wants to be a murderer), reverse what we just did
+	if (table.getn(possibleGunmen) < 1) then
+		possibleGunmen = table.Copy(players)
 	end
 	
 	local magnum = table.Random(possibleGunmen)
@@ -314,10 +326,6 @@ concommand.Add("mu_forcenextmurderer", function (ply, com, args)
 	ct:Add(" will be Murderer next round")
 	ct:Send(ply)
 end)
-
-local playerChoices = { }
-local MurdererPool = { }
-local GunmanPool = { }
 
 concommand.Add("RoleSelect", function(ply, cmd, args)
 	playerChoices[ply:Name()] = args
