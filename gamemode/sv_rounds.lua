@@ -286,6 +286,7 @@ function GM:StartNewRound()
 	-- If we don't have enough possible gunmen (if everybody wants to be a murderer), reverse what we just did
 	if (table.getn(possibleGunmen) < 1) then
 		possibleGunmen = table.Copy(players)
+		table.RemoveByValue(possibleGunmen, murderer)
 	end
 	
 	local magnum = table.Random(possibleGunmen)
@@ -339,29 +340,4 @@ concommand.Add("RoleSelect", function(ply, cmd, args)
 		GunmanPool[ply:Name()] = nil
 		MurdererPool[ply:Name()] = nil
 	end
-	--ShowChoices()
-	--ShowPools()
 end)
-
-function ShowChoices()
-	local message = ""
-	local players = team.GetPlayers(2)
-	
-	for k, v in pairs (playerChoices) do
-		message = message .. k .. " wants to be " .. v[1] .. "\n"
-	end
-	
-	for k, ply in pairs(players) do
-		ply:PrintMessage(HUD_PRINTCENTER, message)
-	end
-end
-
-function ShowPools()
-	for k, v in pairs (MurdererPool) do
-		Msg(k .. " wants to be a Murderer\n")
-	end
-	
-	for k, v in pairs (GunmanPool) do
-		Msg(k .. " wants to be a Gunman\n")
-	end
-end
