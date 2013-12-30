@@ -239,7 +239,7 @@ function GM:StartNewRound()
 		table.RemoveByValue(possibleMurderers, ply)
 	end
 	-- If we don't have enough possible murderers (if everybody wants to be a gunman), reverse what we just did
-	if (table.getn(possibleMurderers) < 1) then
+	if (#possibleMurderers < 1) then
 		possibleMurderers = table.Copy(players)
 	end
 	
@@ -284,7 +284,7 @@ function GM:StartNewRound()
 		table.RemoveByValue(possibleGunmen, ply)
 	end
 	-- If we don't have enough possible gunmen (if everybody wants to be a murderer), reverse what we just did
-	if (table.getn(possibleGunmen) < 1) then
+	if (#possibleGunmen < 1) then
 		possibleGunmen = table.Copy(players)
 		table.RemoveByValue(possibleGunmen, murderer)
 	end
